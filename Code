@@ -1,0 +1,214 @@
+package seabattle2;
+
+import java.util.Scanner;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author Артём Шорлуян
+ */
+public class SeaBattle2 {
+
+    static public void alignmentOfForces(int[][] yourBattleField, int n) {
+        Scanner myScan = new Scanner(System.in);
+        int ship_i, ship_j;
+        for (int m = 1; m <= n; m++) {
+            printField(yourBattleField);
+            System.out.println("Введите координаты коробля номер " + m);
+            ship_i = myScan.nextInt();
+            ship_j = myScan.nextInt();
+            if (yourBattleField[ship_i][ship_j] != 0) {
+                System.out.println("Здесь уже есть корабль");
+                m = m - 1;
+                continue;
+            }
+            if (ship_j == 0) {
+                if (yourBattleField[ship_i][ship_j + 1] == 0) {
+                    yourBattleField[ship_i][ship_j] = 1;
+                    continue;
+                } else {
+                    System.out.println("Не верные координаты");
+                    m = m - 1;
+                    continue;
+                }
+            }
+            if (ship_j == 4) {
+                if (yourBattleField[ship_i][ship_j - 1] == 0) {
+                    yourBattleField[ship_i][ship_j] = 1;
+                    continue;
+                } else {
+                    System.out.println("Не верные координаты");
+                    m = m - 1;
+                    continue;
+                }
+            }
+            if (yourBattleField[ship_i][ship_j - 1] == 0 && yourBattleField[ship_i][ship_j + 1] == 0) {
+                yourBattleField[ship_i][ship_j] = 1;
+                continue;
+            }
+            m = m - 1;
+        }
+        System.out.println("Ваши корабли готовы к бою");
+        printField(yourBattleField);
+    }
+
+    static public int getBattleField(int[][] BattleFieldComp, int chisloKorabley) {
+        if (chisloKorabley == 20) {
+            return chisloKorabley;
+        }
+        int ship;
+        double q;
+        int onDuty = chisloKorabley;
+        for (int i = 0; i < BattleFieldComp.length; i++) {
+            for (int j = 0; j < BattleFieldComp[i].length; j++) {
+                if (onDuty == 20) {
+                    break;
+                }
+                q = Math.random();
+                if (q > 0.7) {
+                    if (onDuty < 20) {
+                        if (j != 0 && BattleFieldComp[i][j - 1] == 0) {
+                            if (j != (BattleFieldComp.length - 1) && BattleFieldComp[i][j + 1] == 0) {
+                                BattleFieldComp[i][j] = 1;
+                                onDuty++;
+                                chisloKorabley++;
+                                j++;
+                            }
+                        }
+                        if (j == 0 && BattleFieldComp[i][j + 1] == 0) {
+                            BattleFieldComp[i][j] = 1;
+                            onDuty++;
+                            chisloKorabley++;
+                            j++;
+                        }
+                        if (j == (BattleFieldComp.length - 1) && BattleFieldComp[i][j - 1] == 0) {
+                            BattleFieldComp[i][j] = 1;
+                            onDuty++;
+                            chisloKorabley++;
+                            j++;
+                        }
+                    }
+                }
+            }
+        }
+        if (onDuty < 20) {
+            getBattleField(BattleFieldComp, chisloKorabley);
+        }
+        return chisloKorabley;
+    }
+
+    static void printField(int[][] getBattleField) {
+        for (int i = 0; i < getBattleField.length; i++) {
+            for (int j = 0; j < getBattleField[i].length; j++) {
+                System.out.print(getBattleField[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    static int underAttack(int[][] yourBattleField, int shot_i, int shot_j, int yourShips) {
+        if (yourBattleField[shot_i][shot_j] == 1) {
+            //JOptionPane.showMessageDialog(null, "Ваш корабль подбит","БАМ!!!",JOptionPane.WARNING_MESSAGE);
+            System.out.println("Ваш корабль подбит!!!");
+            System.out.println("Ваш корабль подбит!!!");
+            System.out.println("Ваш корабль подбит!!!");
+            yourBattleField[shot_i][shot_j] = 2;
+            yourShips--;//нужно вернуть кол-во короблей -1!!!
+            return yourShips;
+        }
+        System.out.println("В вас не попали!");
+        yourBattleField[shot_i][shot_j] = -1;
+        return yourShips;
+    }
+
+    static int yourAttack(int[][] BattleFieldComp, int[][] BattleFieldCompForYou, int compShips, int n) {
+        if (n == 0) {
+            System.out.println("Ваши попытки иссякли.ход переходит к противнику");
+            return compShips;
+        }
+        int shot_i, shot_j;
+        System.out.println("Ваш выстрел. ОГОНЬ!");
+        Scanner myscan = new Scanner(System.in);
+        shot_i = myscan.nextInt();
+        shot_j = myscan.nextInt();
+        if (BattleFieldComp[shot_i][shot_j] == 2 || BattleFieldComp[shot_i][shot_j] == -1) {
+            System.out.println("Вы сюда уже стреляли. Повторите выстрел");
+            yourAttack(BattleFieldComp, BattleFieldCompForYou, compShips, n - 1);
+        }
+        if (BattleFieldComp[shot_i][shot_j] == 1) {
+            System.out.println("БАМ!!Вы попали");              //JOptionPane.showMessageDialog(null, "Вы сбили корабль противника","БАМ!!!",JOptionPane.WARNING_MESSAGE);         
+            compShips--;
+            BattleFieldCompForYou[shot_i][shot_j] = 2;
+            BattleFieldComp[shot_i][shot_j] = 2;
+            return compShips;
+        }
+        if (BattleFieldComp[shot_i][shot_j] != 1) {
+            System.out.println("Мимо");
+            BattleFieldCompForYou[shot_i][shot_j] = -1;
+        }
+        return compShips;
+    }
+
+    static void fill0(int[][] Field) {
+        for (int i = 0; i < Field.length; i++) {
+            for (int j = 0; j < Field.length; j++) {
+                Field[i][j] = 0;
+            }
+        }
+    }
+
+    static public int functionMOVE(int[][] BattleFieldComp, int[][] BattleFieldCompForYou, int[][] yourBattleField, int yourShips, int compShips, int n) {
+        if (compShips == 0 || yourShips == 0) {
+            System.out.println("Game over");
+            System.out.println("Счёт " + yourShips + " " + compShips);
+            return 0;
+        }
+        compShips = yourAttack(BattleFieldComp, BattleFieldCompForYou, compShips, n);
+        printField(BattleFieldCompForYou);
+        System.out.println("Количество не подбитых кораблей противника - " + compShips);
+        System.out.println("Вы под огнём");
+        int shotI = (int) (Math.random() * 5);
+        int shotJ = (int) (Math.random() * 5);
+        yourShips = underAttack(yourBattleField, shotI, shotJ, yourShips);
+        printField(yourBattleField);
+        if (compShips != 0 && yourShips != 0) {
+            functionMOVE(BattleFieldComp, BattleFieldCompForYou, yourBattleField, yourShips, compShips, n);
+            if (compShips == 0) {
+                System.out.println("Вы выиграли!!!!!");
+                return yourShips;
+            }
+            if (yourShips == 0) {
+                System.out.println("Вы проиграли");
+                return yourShips;
+            }
+        }
+        return -1;
+    }
+
+    public static void main(String[] args) {
+        JOptionPane.showMessageDialog(null, "Ну что,начнём?");
+
+        int[][] yourBattleField = new int[10][10];
+        fill0(yourBattleField);
+        int[][] BattleFieldComp = new int[10][10];
+        fill0(BattleFieldComp);
+        getBattleField(BattleFieldComp, 0);
+        printField(BattleFieldComp);                   //eto dlya proverki
+        System.out.println();
+        int[][] BattleFieldCompForYou = new int[10][10];
+        fill0(BattleFieldCompForYou);
+        printField(BattleFieldCompForYou);
+        System.out.println("Ваше море пока пусто. Добвьте на него 4 корабля");
+        System.out.println("За обозначение пустгого месста принят 0. Корабли обозначаются 1.Подбитые 2.");
+        System.out.println("Расставьте свои корабли");
+        System.out.println("Ставить два рядом нельзя");
+        alignmentOfForces(yourBattleField, 20);
+
+        int yourShips = 20;
+        int compShips = 20;
+        int n = 3;
+        functionMOVE(BattleFieldComp, BattleFieldCompForYou, yourBattleField, yourShips, compShips, n);
+        System.out.println("End");
+    }
+
+}
